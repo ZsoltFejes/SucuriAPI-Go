@@ -1,47 +1,36 @@
 package SucuriAPI
 
-import (
-	"fmt"
-	"net/http"
-	"net/url"
-)
+import "net/url"
 
+// Sucuri represents the endpoint and credentials to submit a SucuriRequest to the API
 type Sucuri struct {
-	url       string
-	apiKey    string
-	apiSecret string
+	Url       string
+	ApiKey    string
+	ApiSecret string
 }
 
-func (s Sucuri) setUrl(newUrl string) {
-	s.url = newUrl
-}
-
-func (s Sucuri) setApiKey(newApiKey string) {
-	s.apiKey = newApiKey
-}
-
-func (s Sucuri) setApiSecret(newApiSecret string) {
-	s.apiSecret = newApiSecret
-}
-
-func (s Sucuri) updateSetting(setting string, value string) SRequest {
-	request := SRequest{
+// UpdateSetting generates a SucuriRequest that will overwrite the specified setting and value
+func (s Sucuri) UpdateSetting(setting string, value string) SucuriRequest {
+	request := SucuriRequest{
 		prefix: "Updating setting '" + setting + "': " + value,
 		sucuri: s,
 		params: url.Values{},
 	}
 	request.params.Add("a", "update_setting")
+	request.params.Add(setting, value)
 	return request
 }
 
-func (s Sucuri) whitelistIP(ip string, remove bool) SRequest {
+// WhitelistIP generates a SucuriRequest that adds the specified IP address to the whitelisted IPs list.
+// If remove is set to true the specified IP address will be removed from the whitelisted IP addresses
+func (s Sucuri) WhitelistIP(ip string, remove bool) SucuriRequest {
 	action := "allowlist_ip"
-	prefix := "Whitelisting IP "
+	prefix := "Whitelisting IP"
 	if remove {
 		action = "delete_allowlist_ip"
-		prefix = "Removing whitelisted IP "
+		prefix = "Removing whitelisted IP"
 	}
-	request := SRequest{
+	request := SucuriRequest{
 		prefix: prefix + ip + "; ",
 		sucuri: s,
 		params: url.Values{},
@@ -51,22 +40,15 @@ func (s Sucuri) whitelistIP(ip string, remove bool) SRequest {
 	return request
 }
 
-type SRequest struct {
-	prefix string
-	sucuri Sucuri
-	params url.Values
-}
-
-func (r SRequest) submit() {
-	r.params.Add("k", r.sucuri.apiKey)
-	r.params.Add("s", r.sucuri.apiSecret)
-	requestURL, err := url.Parse(r.sucuri.url + "?" + r.params.Encode())
-	if err != nil {
-		fmt.Println(err)
+// WhitelistIP generates a SucuriRequest that adds the specified Path to the whitelisted paths list.
+func (s Sucuri) WhitelistDir(path string, pattern string) SucuriRequest {
+	request := SucuriRequest{
+		prefix: "Whitelisting Path '" + path + "'",
+		sucuri: s,
+		params: url.Values{},
 	}
-	resp, err := http.Get(requestURL.String())
-	if err != nil {
-		fmt.Printf("Error during request: %s", err)
-	}
-	defer resp.Body.Close()
+	request.params.Add("a", "update_setting")
+	request.params.Add("allowlist_dir", path)
+	request.params.Add("allowlist_dir_pattern", pattern)
+	return request
 }
