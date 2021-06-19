@@ -1,4 +1,4 @@
-package main
+package SucuriAPI
 
 import (
 	"fmt"
@@ -24,8 +24,8 @@ func (s Sucuri) setApiSecret(newApiSecret string) {
 	s.apiSecret = newApiSecret
 }
 
-func (s Sucuri) updateSetting(setting string, value string) Request {
-	request := Request{
+func (s Sucuri) updateSetting(setting string, value string) SRequest {
+	request := SRequest{
 		prefix: "Updating setting '" + setting + "': " + value,
 		sucuri: s,
 		params: url.Values{},
@@ -34,13 +34,30 @@ func (s Sucuri) updateSetting(setting string, value string) Request {
 	return request
 }
 
-type Request struct {
+func (s Sucuri) whitelistIP(ip string, remove bool) SRequest {
+	action := "allowlist_ip"
+	prefix := "Whitelisting IP "
+	if remove {
+		action = "delete_allowlist_ip"
+		prefix = "Removing whitelisted IP "
+	}
+	request := SRequest{
+		prefix: prefix + ip + "; ",
+		sucuri: s,
+		params: url.Values{},
+	}
+	request.params.Add("a", action)
+	request.params.Add("ip", ip)
+	return request
+}
+
+type SRequest struct {
 	prefix string
 	sucuri Sucuri
 	params url.Values
 }
 
-func (r Request) submit() {
+func (r SRequest) submit() {
 	r.params.Add("k", r.sucuri.apiKey)
 	r.params.Add("s", r.sucuri.apiSecret)
 	requestURL, err := url.Parse(r.sucuri.url + "?" + r.params.Encode())
@@ -52,8 +69,4 @@ func (r Request) submit() {
 		fmt.Printf("Error during request: %s", err)
 	}
 	defer resp.Body.Close()
-}
-
-func main() {
-
 }
