@@ -1,3 +1,8 @@
+// Copyright 2021 The SucuriAPI-Go AUTHORS. All rights reserved.
+//
+// Use of this source code is governed by an MIT License
+// license that can be found in the LICENSE file.
+
 package SucuriAPI
 
 import "net/url"
@@ -9,8 +14,9 @@ type Sucuri struct {
 	ApiSecret string
 }
 
-// TODO Show Settings
 // TODO Audit trail
+// TODO Get protected pages /request.params.Add(setting, value)/
+// TODO Add/Remove site
 
 // UpdateSetting generates a SucuriRequest that will overwrite the specified setting and value
 func (s Sucuri) UpdateSetting(setting string, value string) SucuriRequest {
@@ -24,7 +30,7 @@ func (s Sucuri) UpdateSetting(setting string, value string) SucuriRequest {
 	return request
 }
 
-// UpdateSetting generates a SucuriRequest that will clear the site cache
+// ClearCache generates a SucuriRequest that will clear the site cache
 func (s Sucuri) ClearCache() SucuriRequest {
 	request := SucuriRequest{
 		prefix: "Clearing Cache",
@@ -32,6 +38,13 @@ func (s Sucuri) ClearCache() SucuriRequest {
 		params: url.Values{},
 	}
 	request.params.Add("a", "clear_cache")
+	return request
+}
+
+// ClearFileFromCache generates a SucuriRequest that will clear the file specified by the path from cache
+func (s Sucuri) ClearFileFromCache(filepath string) SucuriRequest {
+	request := s.ClearCache()
+	request.params.Add("file", filepath)
 	return request
 }
 
