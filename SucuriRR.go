@@ -22,12 +22,15 @@ type SucuriRequest struct {
 }
 
 type sucuriResponse struct {
-	Status      int               `json:"status,omitempty"`
-	Messages    []string          `json:"messages,omitempty"`
-	Action      string            `json:"action,omitempty"`
-	RequestTime int               `json:"request_time,omitempty"`
-	Verbose     int               `json:"verbose,omitempty"`
-	Output      map[string]string `json:"output,omitempty"`
+	Status      int      `json:"status,omitempty"`
+	Messages    []string `json:"messages,omitempty"`
+	Action      string   `json:"action,omitempty"`
+	RequestTime int      `json:"request_time,omitempty"`
+	Verbose     int      `json:"verbose,omitempty"`
+}
+
+type sucuriResponseOutput struct {
+	Output map[string]string `json:"output,omitempty"`
 }
 
 func (r SucuriRequest) Submit() {
@@ -37,7 +40,7 @@ func (r SucuriRequest) Submit() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	response := sucuriResponse{Output: make(map[string]string)}
+	response := sucuriResponse{}
 	resp, err := http.Get(requestURL.String())
 	if err != nil {
 		fmt.Println(err)
@@ -51,8 +54,7 @@ func (r SucuriRequest) Submit() {
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		fmt.Printf("Error during request: %s\n", err)
-		fmt.Println(string(body))
+		fmt.Printf("%s - ERROR Unable to parse response: %s\n%s\n\n", r.prefix, err, string(body))
 	} else {
 		if response.Status == 0 {
 			fmt.Println("No Change - " + r.prefix + "; " + response.Messages[0])
