@@ -3,6 +3,10 @@
 // Use of this source code is governed by an MIT License
 // license that can be found in the LICENSE file.
 
+// TODO Audit trail
+// TODO Get protected pages /request.params.Add(setting, value)/
+// TODO Add/Remove site
+
 package SucuriAPI
 
 import "net/url"
@@ -13,10 +17,6 @@ type Sucuri struct {
 	ApiKey    string
 	ApiSecret string
 }
-
-// TODO Audit trail
-// TODO Get protected pages /request.params.Add(setting, value)/
-// TODO Add/Remove site
 
 // UpdateSetting generates a SucuriRequest that will overwrite the specified setting and value
 func (s Sucuri) UpdateSetting(setting string, value string) SucuriRequest {
@@ -58,7 +58,7 @@ func (s Sucuri) WhitelistIP(ip string, remove bool) SucuriRequest {
 		prefix = "Removing whitelisted IP "
 	}
 	request := SucuriRequest{
-		prefix: prefix + ip + "; ",
+		prefix: prefix + ip,
 		sucuri: s,
 		params: url.Values{},
 	}
@@ -77,7 +77,7 @@ func (s Sucuri) BlacklistIP(ip string, remove bool) SucuriRequest {
 		prefix = "Removing blacklisted IP "
 	}
 	request := SucuriRequest{
-		prefix: prefix + ip + "; ",
+		prefix: prefix + ip,
 		sucuri: s,
 		params: url.Values{},
 	}
