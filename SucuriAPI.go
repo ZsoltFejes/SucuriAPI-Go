@@ -86,7 +86,7 @@ func (s Sucuri) BlacklistIP(ip string, remove bool) SucuriRequest {
 	return request
 }
 
-// WhitelistIP generates a SucuriRequest that adds the specified Path to the whitelisted paths list.
+// WhitelistPath generates a SucuriRequest that adds the specified Path to the whitelisted paths list, with the specified pattern (matches|begins_with|ends_with|equals).
 func (s Sucuri) WhitelistPath(path string, pattern string) SucuriRequest {
 	request := SucuriRequest{
 		prefix: "Whitelisting Path '" + path + "'",
@@ -96,5 +96,18 @@ func (s Sucuri) WhitelistPath(path string, pattern string) SucuriRequest {
 	request.params.Add("a", "update_setting")
 	request.params.Add("allowlist_dir", path)
 	request.params.Add("allowlist_dir_pattern", pattern)
+	return request
+}
+
+// BlacklistPath generates a SucuriRequest that adds the specified Path to the blacklisted paths list, with the specified pattern (matches|begins_with|ends_with|equals).
+func (s Sucuri) BlacklistPath(path string, pattern string) SucuriRequest {
+	request := SucuriRequest{
+		prefix: "Blacklisting Path '" + path + "'",
+		sucuri: s,
+		params: url.Values{},
+	}
+	request.params.Add("a", "update_setting")
+	request.params.Add("blacklist_dir", path)
+	request.params.Add("blacklist_dir_pattern", pattern)
 	return request
 }
